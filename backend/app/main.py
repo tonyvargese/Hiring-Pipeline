@@ -3,8 +3,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.database import Base, engine
 from app import models  # noqa: F401
+from app.api.candidates import router as candidates_router
+from app.database import Base, engine
 
 
 @asynccontextmanager
@@ -19,6 +20,8 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+app.include_router(candidates_router)
 
 
 @app.get("/health", tags=["Health"])
