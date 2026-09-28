@@ -31,3 +31,22 @@ class CandidateResponse(BaseModel):
     current_stage: Stage
     current_stage_entered_at: datetime
     created_at: datetime
+
+
+
+class PipelineCandidateResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    full_name: str
+    current_stage: Stage
+    current_stage_entered_at: datetime
+
+
+class PipelineStageResponse(BaseModel):
+    stage: Stage
+    candidates: list[PipelineCandidateResponse]
+
+
+class PipelineResponse(BaseModel):
+    stages: list[PipelineStageResponse]
