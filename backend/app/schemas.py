@@ -50,3 +50,22 @@ class PipelineStageResponse(BaseModel):
 
 class PipelineResponse(BaseModel):
     stages: list[PipelineStageResponse]
+
+
+class CandidateTransitionRequest(BaseModel):
+    from_stage: Stage
+    to_stage: Stage
+
+
+class StageEventResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    from_stage: Stage | None
+    to_stage: Stage
+    occurred_at: datetime
+
+
+class CandidateTransitionResponse(BaseModel):
+    candidate: CandidateResponse
+    event: StageEventResponse
