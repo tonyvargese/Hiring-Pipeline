@@ -4,6 +4,8 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models import Stage
 
+from enum import Enum
+
 
 class CandidateCreate(BaseModel):
     full_name: str = Field(
@@ -89,3 +91,54 @@ class CandidateDetailResponse(BaseModel):
     created_at: datetime
     allowed_next_stages: list[Stage]
     history: list[CandidateHistoryResponse]
+
+
+class ComparisonOperator(str, Enum):
+    GREATER_THAN = "GT"
+    GREATER_THAN_OR_EQUAL = "GTE"
+    LESS_THAN = "LT"
+    LESS_THAN_OR_EQUAL = "LTE"
+
+
+class NameSearchCondition(BaseModel):
+    text: str
+    fuzzy: bool = True
+
+
+class CurrentStageCondition(BaseModel):
+    include: list[Stage] = Field(default_factory=list)
+    exclude: list[Stage] = Field(default_factory=list)
+
+
+class StageAgeCondition(BaseModel):
+    operator: ComparisonOperator
+    seconds: int = Field(gt=0)
+
+
+class HistoryPredicate(BaseModel):
+    stage: Stage
+    since: datetime | None = None
+    until: datetime | None = None
+
+
+class SearchPlan(BaseModel):
+    name: NameSearchCondition | None = None
+
+    current_stage: CurrentStageCondition = Field(
+        default_factory=CurrentStageCondition
+    )
+
+    current_stage_age: StageAgeCondition | None = None
+
+    history_predicates: list[HistoryPredicate] = Field(
+        default_factory=list
+    )
+
+    history_exclusions: list[Stage] = Field(
+        default_factory=list
+    )
+
+
+class SearchInterpretation(BaseModel):
+    summary: str
+    corrections: list[str] = Field(default_factory=list)

@@ -7,7 +7,9 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.141.1",
     "pydantic-settings>=2.15.0",
+    "rapidfuzz>=3.14.6",
     "sqlalchemy>=2.1.1",
+    "tzdata>=2026.4",
     "uvicorn[standard]>=0.54.0",
 ]
 
