@@ -1,9 +1,15 @@
+from datetime import datetime, timezone
 import re
 import unicodedata
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 
+from sqlalchemy import select
+from sqlalchemy.orm import Session, selectinload
+
+from app.errors import CandidateNotFoundError
 from app.models import Candidate, CandidateStageEvent, Stage, utc_now
+
+
+
 
 
 def normalize_name(full_name: str) -> str:
@@ -79,3 +85,38 @@ def get_pipeline(database: Session) -> dict[Stage, list[Candidate]]:
         grouped_candidates[candidate.current_stage].append(candidate)
 
     return grouped_candidates
+
+def get_candidate_details(
+    database: Session,
+    candidate_id: int,
+) -> Candidate:
+    """Return one candidate with ordered stage history."""
+
+    candidate = database.scalar(
+        select(Candidate)
+        .options(selectinload(Candidate.stage_events))
+        .where(Candidate.id == candidate_id)
+    )
+
+    if candidate is None:
+        raise CandidateNotFoundError(candidate_id)
+
+    return candidate
+
+def calculate_duration_seconds(
+    entered_at: datetime,
+    now: datetime | None = None,
+) -> int:
+    """Calculate elapsed seconds from stage entry until now."""
+
+    current_time = now or datetime.now(timezone.utc)
+
+    if entered_at.tzinfo is None:
+        entered_at = entered_at.replace(tzinfo=timezone.utc)
+
+    if current_time.tzinfo is None:
+        current_time = current_time.replace(tzinfo=timezone.utc)
+
+    duration = current_time - entered_at
+
+    return max(0, int(duration.total_seconds()))

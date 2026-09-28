@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.models import Candidate, CandidateStageEvent, Stage, utc_now
 
+from app.errors import CandidateNotFoundError
+
 
 ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     Stage.APPLIED: {
@@ -29,9 +31,9 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
 }
 
 
-@dataclass
-class CandidateNotFoundError(Exception):
-    candidate_id: int
+# @dataclass
+# class CandidateNotFoundError(Exception):
+#     candidate_id: int
 
 
 @dataclass

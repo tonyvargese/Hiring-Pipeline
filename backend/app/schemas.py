@@ -69,3 +69,23 @@ class StageEventResponse(BaseModel):
 class CandidateTransitionResponse(BaseModel):
     candidate: CandidateResponse
     event: StageEventResponse
+
+
+class CandidateHistoryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    from_stage: Stage | None
+    to_stage: Stage
+    occurred_at: datetime
+
+
+class CandidateDetailResponse(BaseModel):
+    id: int
+    full_name: str
+    current_stage: Stage
+    current_stage_entered_at: datetime
+    current_stage_duration_seconds: int
+    created_at: datetime
+    allowed_next_stages: list[Stage]
+    history: list[CandidateHistoryResponse]

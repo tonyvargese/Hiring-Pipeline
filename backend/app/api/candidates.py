@@ -6,18 +6,31 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas import (
     CandidateCreate,
+    CandidateDetailResponse,
+    CandidateHistoryResponse,
     CandidateResponse,
     CandidateTransitionRequest,
     CandidateTransitionResponse,
     StageEventResponse,
 )
-from app.services.candidates import create_candidate
+from app.services.candidates import (
+    calculate_duration_seconds,
+    create_candidate,
+    get_candidate_details,
+)
 from app.services.transitions import (
     CandidateNotFoundError,
     InvalidStageTransitionError,
     StaleStageTransitionError,
     transition_candidate,
 )
+
+from app.services.transitions import (
+    ALLOWED_TRANSITIONS,
+    InvalidStageTransitionError,
+    StaleStageTransitionError,
+)
+from app.errors import CandidateNotFoundError
 
 
 router = APIRouter(
@@ -119,3 +132,50 @@ def move_candidate(
         candidate=CandidateResponse.model_validate(candidate),
         event=StageEventResponse.model_validate(stage_event),
     )
+
+
+@router.get(
+    "/{candidate_id}",
+    response_model=CandidateDetailResponse,
+)
+def read_candidate(
+    candidate_id: int,
+    database: Annotated[Session, Depends(get_db)],
+) -> CandidateDetailResponse:
+    try:
+        candidate = get_candidate_details(
+            database=database,
+            candidate_id=candidate_id,
+        )
+    except CandidateNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "code": "CANDIDATE_NOT_FOUND",
+                "message": (
+                    f"Candidate {error.candidate_id} was not found."
+                ),
+                "hints": [],
+            },
+        ) from error
+
+    allowed_next_stages = sorted(
+        ALLOWED_TRANSITIONS[candidate.current_stage],
+        key=lambda stage: stage.value,
+    )
+
+    return CandidateDetailResponse(
+        id=candidate.id,
+        full_name=candidate.full_name,
+        current_stage=candidate.current_stage,
+        current_stage_entered_at=candidate.current_stage_entered_at,
+        current_stage_duration_seconds=calculate_duration_seconds(
+            candidate.current_stage_entered_at
+        ),
+        created_at=candidate.created_at,
+        allowed_next_stages=allowed_next_stages,
+        history=[
+            CandidateHistoryResponse.model_validate(event)
+            for event in candidate.stage_events
+        ],)
+ 
