@@ -7,6 +7,7 @@ from app import models  # noqa: F401
 from app.api.candidates import router as candidates_router
 from app.database import Base, engine
 from app.api.pipeline import router as pipeline_router
+from app.api.search import router as search_router
 
 
 @asynccontextmanager
@@ -24,6 +25,7 @@ app = FastAPI(
 
 app.include_router(candidates_router)
 app.include_router(pipeline_router)
+app.include_router(search_router)
 
 
 @app.get("/health", tags=["Health"])

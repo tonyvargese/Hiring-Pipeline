@@ -242,10 +242,13 @@ def parse_search_query(
         query = query.replace(current_stage_match.group(0), " ")
 
     query = re.sub(
-        r"\b(the|stage|but|and|are|is|get|currently|right|now)\b",
-        " ",
-        query,
-    )
+    r"\b("
+    r"the|stage|but|and|are|is|get|currently|right|now|"
+    r"has|have|been|who|candidate|candidates"
+    r")\b",
+    " ",
+    query,
+        )
     query = re.sub(r"\s+", " ", query).strip()
 
     name_residue = extract_name_residue(query)

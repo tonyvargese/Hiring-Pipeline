@@ -56,6 +56,7 @@ def test_parses_screening_duration_query() -> None:
         ComparisonOperator.GREATER_THAN
     )
     assert plan.current_stage_age.seconds == 604800
+    assert plan.name is None
 
 
 def test_parses_interview_since_monday_query() -> None:

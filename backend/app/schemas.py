@@ -142,3 +142,21 @@ class SearchPlan(BaseModel):
 class SearchInterpretation(BaseModel):
     summary: str
     corrections: list[str] = Field(default_factory=list)
+
+
+class SearchCandidateResponse(BaseModel):
+    id: int
+    full_name: str
+    current_stage: Stage
+    current_stage_entered_at: datetime
+    score: float | None = None
+
+
+class SearchResponse(BaseModel):
+    query: str
+    interpretation: SearchInterpretation
+    plan: SearchPlan
+    count: int
+    results: list[SearchCandidateResponse]
+
+
