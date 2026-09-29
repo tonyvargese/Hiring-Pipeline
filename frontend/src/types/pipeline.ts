@@ -30,3 +30,15 @@ export const STAGE_LABELS: Record<Stage, string> = {
   HIRED: "Hired",
   REJECTED: "Rejected",
 };
+
+export interface CandidateCreateRequest {
+    full_name: string;
+  }
+  
+  export interface CandidateCreateResponse {
+    id: number;
+    full_name: string;
+    current_stage: Stage;
+    current_stage_entered_at: string;
+    created_at: string;
+  }

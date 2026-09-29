@@ -4,6 +4,7 @@ import { getPipeline } from "./api/pipeline";
 import "./App.css";
 import { PipelineBoard } from "./components/PipelineBoard";
 import type { PipelineResponse } from "./types/pipeline";
+import { AddCandidateForm } from "./components/AddCandidateForm";
 
 function App() {
   const [pipeline, setPipeline] =
@@ -59,6 +60,10 @@ function App() {
           {isLoading ? "Refreshing..." : "Refresh"}
         </button>
       </header>
+
+      <AddCandidateForm
+          onCandidateCreated={loadPipeline}
+      />
 
       {isLoading && pipeline === null ? (
         <section className="status-panel">

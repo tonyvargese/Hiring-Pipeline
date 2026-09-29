@@ -199,6 +199,14 @@ button:disabled {
   background: #a62e45;
 }
 
+.add-candidate-panel {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(320px, 2fr);
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
 @media (max-width: 720px) {
   .app-shell {
     padding: 20px;
@@ -206,6 +214,18 @@ button:disabled {
 
   .app-header {
     flex-direction: column;
+  }
+
+  .add-candidate-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .add-candidate-form {
+    flex-direction: column;
+  }
+
+  .form-message {
+    grid-column: 1;
   }
 
   .pipeline-board {
