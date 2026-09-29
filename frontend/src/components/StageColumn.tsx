@@ -7,6 +7,9 @@ import type {
   interface StageColumnProps {
     stage: Stage;
     candidates: PipelineCandidate[];
+    selectedCandidateId: number | null;
+    selectionLocked: boolean;
+    onCandidateSelect: (candidateId: number) => void;
   }
   
   function formatStageDuration(enteredAt: string): string {
@@ -36,6 +39,9 @@ import type {
   export function StageColumn({
     stage,
     candidates,
+    selectedCandidateId,
+    selectionLocked,
+    onCandidateSelect,
   }: StageColumnProps) {
     return (
       <section className={`stage-column stage-${stage.toLowerCase()}`}>
@@ -52,20 +58,33 @@ import type {
               No candidates
             </p>
           ) : (
-            candidates.map((candidate) => (
-              <article
-                className="candidate-card"
-                key={candidate.id}
-              >
-                <h3>{candidate.full_name}</h3>
-  
-                <p>
-                  {formatStageDuration(
-                    candidate.current_stage_entered_at,
-                  )}
-                </p>
-              </article>
-            ))
+            candidates.map((candidate) => {
+              const isSelected =
+                selectedCandidateId === candidate.id;
+            
+              return (
+                <button
+                  className={`candidate-card${
+                    isSelected ? " candidate-card--selected" : ""
+                  }`}
+                  key={candidate.id}
+                  type="button"
+                  onClick={() => onCandidateSelect(candidate.id)}
+                  disabled={selectionLocked}
+                  aria-pressed={isSelected}
+                >
+                  <span className="candidate-card__name">
+                    {candidate.full_name}
+                  </span>
+            
+                  <span className="candidate-card__duration">
+                    {formatStageDuration(
+                      candidate.current_stage_entered_at,
+                    )}
+                  </span>
+                </button>
+              );
+            })
           )}
         </div>
       </section>

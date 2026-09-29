@@ -1,5 +1,7 @@
 import {
     type FormEvent,
+    useEffect,
+    useRef,
     useState,
   } from "react";
   
@@ -7,21 +9,34 @@ import {
   
   interface AddCandidateFormProps {
     onCandidateCreated: () => Promise<void>;
+    actionsLocked: boolean;
+    onPendingChange: (pending: boolean) => void;
   }
   
   export function AddCandidateForm({
     onCandidateCreated,
+    actionsLocked,
+    onPendingChange,
   }: AddCandidateFormProps) {
     const [fullName, setFullName] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] =
       useState<string | null>(null);
+    const submitLock = useRef(false);
+
+    useEffect(() => {
+      onPendingChange(isSubmitting);
+    }, [isSubmitting, onPendingChange]);
   
     async function handleSubmit(
       event: FormEvent<HTMLFormElement>,
     ) {
       event.preventDefault();
+
+      if (submitLock.current || actionsLocked) {
+        return;
+      }
   
       const cleanedName = fullName.trim();
   
@@ -30,6 +45,7 @@ import {
         return;
       }
   
+      submitLock.current = true;
       setIsSubmitting(true);
       setError(null);
       setSuccessMessage(null);
@@ -53,6 +69,7 @@ import {
   
         setError(message);
       } finally {
+        submitLock.current = false;
         setIsSubmitting(false);
       }
     }
@@ -66,6 +83,7 @@ import {
           </p>
         </div>
   
+        <div className="add-candidate-panel__form">
         <form
           className="add-candidate-form"
           onSubmit={(event) => void handleSubmit(event)}
@@ -90,13 +108,15 @@ import {
             placeholder="Candidate full name"
             autoComplete="name"
             maxLength={150}
-            disabled={isSubmitting}
+            disabled={isSubmitting || actionsLocked}
           />
   
           <button
             className="primary-button"
             type="submit"
-            disabled={isSubmitting || !fullName.trim()}
+            disabled={
+              isSubmitting || actionsLocked || !fullName.trim()
+            }
           >
             {isSubmitting ? "Adding..." : "Add candidate"}
           </button>
@@ -119,6 +139,7 @@ import {
             {successMessage}
           </p>
         ) : null}
+        </div>
       </section>
     );
   }
